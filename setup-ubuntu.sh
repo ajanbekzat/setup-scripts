@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# Ubuntu setup script
+# Usage: bash setup-ubuntu.sh
+
+set -euo pipefail
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log() { echo -e "${GREEN}[+]${NC} $*"; }
+warn() { echo -e "${YELLOW}[!]${NC} $*"; }
+
+# --- System packages ---
+log "Updating apt..."
+sudo apt update -y
+
+log "Installing base packages..."
+sudo apt install -y \
+    git \
+    curl \
+    wget \
+    unzip \
+    build-essential \
+    g++ \
+    npm \
+    ripgrep \
+    fd-find \
+    fzf \
+    tmux \
+    chafa
+
+# --- Neovim (AppImage, avoids snap issues) ---
+if ! command -v nvim &>/dev/null; then
+    log "Installing Neovim (AppImage)..."
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+    chmod u+x nvim-linux-x86_64.appimage
+    sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
+else
+    log "Neovim already installed: $(nvim --version | head -1)"
+fi
+
+# --- tree-sitter-cli ---
+if ! command -v tree-sitter &>/dev/null; then
+    log "Installing tree-sitter-cli..."
+    sudo npm install -g tree-sitter-cli || {
+        warn "tree-sitter-cli install failed (GLIBC?), trying older version..."
+        sudo npm install -g tree-sitter-cli@0.24.7
+    }
+else
+    log "tree-sitter-cli already installed"
+fi
+
+# --- lazygit ---
+if ! command -v lazygit &>/dev/null; then
+    log "Installing lazygit..."
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+    tar xf lazygit.tar.gz lazygit
+    sudo install lazygit /usr/local/bin
+    rm -f lazygit lazygit.tar.gz
+else
+    log "lazygit already installed"
+fi
+
+# --- csvlens ---
+if ! command -v csvlens &>/dev/null; then
+    log "Installing csvlens..."
+    curl -LO https://github.com/YS-L/csvlens/releases/latest/download/csvlens-x86_64-unknown-linux-gnu.tar.gz
+    tar xzf csvlens-x86_64-unknown-linux-gnu.tar.gz
+    sudo mv csvlens /usr/local/bin/
+    rm -f csvlens-x86_64-unknown-linux-gnu.tar.gz
+else
+    log "csvlens already installed"
+fi
+
+# --- nvm + node ---
+if [ ! -d "$HOME/.nvm" ]; then
+    log "Installing nvm..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm install --lts
+else
+    log "nvm already installed"
+fi
+
+# --- Oh My Bash ---
+if [ ! -d "$HOME/.oh-my-bash" ]; then
+    log "Installing Oh My Bash..."
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" --unattended
+else
+    log "Oh My Bash already installed"
+fi
+
+# --- Clone configs ---
+log "Setting up Neovim config..."
+if [ -d ~/.config/nvim ]; then
+    warn "~/.config/nvim already exists, skipping clone"
+else
+    git clone https://github.com/ajanbekzat/nvim.git ~/.config/nvim
+    rm -f ~/.config/nvim/lazy-lock.json
+fi
+
+log "Setting up tmux config..."
+if [ -d ~/.config/tmux ]; then
+    warn "~/.config/tmux already exists, skipping clone"
+else
+    git clone https://github.com/ajanbekzat/tmux.git ~/.config/tmux
+fi
+
+# --- Bashrc aliases ---
+log "Setting up bash aliases..."
+if ! grep -q 'alias lg=' ~/.bashrc 2>/dev/null; then
+    cat >>~/.bashrc <<'BASHRC'
+
+# --- Tool aliases ---
+alias vi='nvim'
+alias lll='ls -lhF --color=auto'
+alias tt='tmux a'
+alias tto='tmux detach'
+alias lg='lazygit'
+alias python='python3'
+alias pip='pip3'
+alias srcbash='source ~/.bashrc'
+alias icat='chafa image.png'
+
+export PATH="$HOME/.local/bin:$PATH"
+BASHRC
+    log "Aliases added to .bashrc"
+else
+    warn "Aliases already in .bashrc, skipping"
+fi
+
+# --- Reminders ---
+echo ""
+log "Setup complete!"
+echo ""
+warn "Don't forget to:"
+echo "  1. Set your API keys in a SEPARATE file (not .bashrc!):"
+echo "     echo 'export ANTHROPIC_API_KEY=your-key' >> ~/.secrets"
+echo "     echo 'source ~/.secrets' >> ~/.bashrc"
+echo "     chmod 600 ~/.secrets"
+echo "  2. Launch nvim to let lazy.nvim install plugins"
+echo "  3. Restart your shell: source ~/.bashrc"
+echo "  4. For chafa kitty protocol over SSH, ensure chafa >= 1.14"
+echo "     Check with: chafa --version"
