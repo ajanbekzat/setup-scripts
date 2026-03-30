@@ -66,10 +66,11 @@ fi
 # --- csvlens ---
 if ! command -v csvlens &>/dev/null; then
     log "Installing csvlens..."
-    curl -LO https://github.com/YS-L/csvlens/releases/latest/download/csvlens-x86_64-unknown-linux-gnu.tar.gz
-    tar xzf csvlens-x86_64-unknown-linux-gnu.tar.gz
+    CSVLENS_VERSION=$(curl -s "https://api.github.com/repos/YS-L/csvlens/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+    curl -Lo csvlens.tar.xz "https://github.com/YS-L/csvlens/releases/download/${CSVLENS_VERSION}/csvlens-x86_64-unknown-linux-gnu.tar.xz"
+    tar xf csvlens.tar.xz
     sudo mv csvlens /usr/local/bin/
-    rm -f csvlens-x86_64-unknown-linux-gnu.tar.gz
+    rm -f csvlens.tar.xz
 else
     log "csvlens already installed"
 fi
