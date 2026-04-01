@@ -27,8 +27,29 @@ sudo apt install -y \
     ripgrep \
     fd-find \
     fzf \
-    tmux \
-    chafa
+    chafa \
+    libevent-dev \
+    ncurses-dev \
+    bison \
+    pkg-config
+
+# --- tmux 3.5a (build from source, apt version is too old for OSC 52 passthrough) ---
+TMUX_REQUIRED="3.5a"
+if command -v tmux &>/dev/null && [[ "$(tmux -V)" == *"$TMUX_REQUIRED"* ]]; then
+    log "tmux $TMUX_REQUIRED already installed"
+else
+    log "Building tmux $TMUX_REQUIRED from source..."
+    cd /tmp
+    curl -LO "https://github.com/tmux/tmux/releases/download/${TMUX_REQUIRED}/tmux-${TMUX_REQUIRED}.tar.gz"
+    tar xzf "tmux-${TMUX_REQUIRED}.tar.gz"
+    cd "tmux-${TMUX_REQUIRED}"
+    ./configure && make
+    sudo make install
+    cd /tmp
+    rm -rf "tmux-${TMUX_REQUIRED}" "tmux-${TMUX_REQUIRED}.tar.gz"
+    hash -r
+    log "tmux installed: $(tmux -V)"
+fi
 
 # --- Neovim (AppImage, avoids snap issues) ---
 if ! command -v nvim &>/dev/null; then
