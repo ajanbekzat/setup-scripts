@@ -101,7 +101,7 @@ log "Setting up Neovim config..."
 if [ -d ~/.config/nvim ]; then
     warn "~/.config/nvim already exists, skipping clone"
 else
-    git clone https://github.com/ajanbekzat/nvim.git ~/.config/nvim
+    git clone git@github.com:ajanbekzat/nvim.git ~/.config/nvim
     rm -f ~/.config/nvim/lazy-lock.json
 fi
 
@@ -109,7 +109,7 @@ log "Setting up tmux config..."
 if [ -d ~/.config/tmux ]; then
     warn "~/.config/tmux already exists, skipping clone"
 else
-    git clone https://github.com/ajanbekzat/tmux.git ~/.config/tmux
+    git clone git@github.com:ajanbekzat/tmux.git ~/.config/tmux
 fi
 
 # --- Bashrc aliases ---
