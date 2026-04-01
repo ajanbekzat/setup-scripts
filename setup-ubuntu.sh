@@ -38,6 +38,8 @@ TMUX_REQUIRED="3.5a"
 if command -v tmux &>/dev/null && [[ "$(tmux -V)" == *"$TMUX_REQUIRED"* ]]; then
     log "tmux $TMUX_REQUIRED already installed"
 else
+    # Remove old apt version if present
+    sudo apt remove -y tmux 2>/dev/null || true
     log "Building tmux $TMUX_REQUIRED from source..."
     cd /tmp
     curl -LO "https://github.com/tmux/tmux/releases/download/${TMUX_REQUIRED}/tmux-${TMUX_REQUIRED}.tar.gz"
