@@ -40,17 +40,6 @@ else
     log "Neovim already installed: $(nvim --version | head -1)"
 fi
 
-# --- tree-sitter-cli ---
-if ! command -v tree-sitter &>/dev/null; then
-    log "Installing tree-sitter-cli..."
-    sudo npm install -g tree-sitter-cli || {
-        warn "tree-sitter-cli install failed (GLIBC?), trying older version..."
-        sudo npm install -g tree-sitter-cli@0.24.7
-    }
-else
-    log "tree-sitter-cli already installed"
-fi
-
 # --- lazygit ---
 if ! command -v lazygit &>/dev/null; then
     log "Installing lazygit..."
@@ -69,8 +58,8 @@ if ! command -v csvlens &>/dev/null; then
     CSVLENS_VERSION=$(curl -s "https://api.github.com/repos/YS-L/csvlens/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
     curl -Lo csvlens.tar.xz "https://github.com/YS-L/csvlens/releases/download/${CSVLENS_VERSION}/csvlens-x86_64-unknown-linux-gnu.tar.xz"
     tar xf csvlens.tar.xz
-    sudo mv csvlens /usr/local/bin/
-    rm -f csvlens.tar.xz
+    sudo mv csvlens-x86_64-unknown-linux-gnu/csvlens /usr/local/bin/
+    rm -rf csvlens.tar.xz csvlens-x86_64-unknown-linux-gnu
 else
     log "csvlens already installed"
 fi
@@ -84,6 +73,19 @@ if [ ! -d "$HOME/.nvm" ]; then
     nvm install --lts
 else
     log "nvm already installed"
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+fi
+
+# --- tree-sitter-cli (needs nvm node, not system node) ---
+if ! command -v tree-sitter &>/dev/null; then
+    log "Installing tree-sitter-cli..."
+    npm install -g tree-sitter-cli || {
+        warn "npm install failed, trying older version..."
+        npm install -g tree-sitter-cli@0.24.7
+    }
+else
+    log "tree-sitter-cli already installed"
 fi
 
 # --- Oh My Bash ---
