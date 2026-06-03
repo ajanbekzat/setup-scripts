@@ -49,6 +49,10 @@ The scripts automatically clone these configs into `~/.config/`:
 - **tmux** — [ajanbekzat/tmux](https://github.com/ajanbekzat/tmux) → `~/.config/tmux`
 - **Ghostty** — created inline by the macOS script → `~/.config/ghostty`
 
+After cloning the tmux config, both scripts install [TPM](https://github.com/tmux-plugins/tpm) and its
+plugins (resurrect, continuum, pain-control) into `~/.config/tmux/plugins/`, so tmux session
+save/restore (`prefix + Ctrl-s` / `prefix + Ctrl-r`, plus auto-restore on reboot) works out of the box.
+
 ## Shell Aliases
 
 Both scripts set up these aliases:

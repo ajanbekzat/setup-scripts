@@ -135,6 +135,20 @@ else
     git clone git@github.com:ajanbekzat/tmux.git ~/.config/tmux
 fi
 
+# --- tmux plugins (TPM + resurrect / continuum / pain-control) ---
+# TPM must be cloned and plugins installed, otherwise session resurrect won't work.
+if [ ! -d ~/.config/tmux/plugins/tpm ]; then
+    log "Installing tmux plugin manager (TPM)..."
+    git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+else
+    log "TPM already installed"
+fi
+log "Installing tmux plugins..."
+# install_plugins reads @plugin from tmux.conf and clones into TMUX_PLUGIN_MANAGER_PATH
+TMUX_PLUGIN_MANAGER_PATH="$HOME/.config/tmux/plugins/" \
+    ~/.config/tmux/plugins/tpm/bin/install_plugins \
+    || warn "tmux plugin install failed; inside tmux press prefix + I to retry"
+
 # --- Bashrc aliases ---
 log "Setting up bash aliases..."
 if ! grep -q 'alias lg=' ~/.bashrc 2>/dev/null; then

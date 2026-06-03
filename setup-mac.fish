@@ -87,6 +87,18 @@ else
     git clone https://github.com/ajanbekzat/tmux.git ~/.config/tmux
 end
 
+# --- tmux plugins (TPM + resurrect / continuum / pain-control) ---
+# TPM must be cloned and plugins installed, otherwise session resurrect won't work.
+if not test -d ~/.config/tmux/plugins/tpm
+    log "Installing tmux plugin manager (TPM)..."
+    git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+else
+    log "TPM already installed"
+end
+log "Installing tmux plugins..."
+# install_plugins reads @plugin from tmux.conf and clones into TMUX_PLUGIN_MANAGER_PATH
+env TMUX_PLUGIN_MANAGER_PATH="$HOME/.config/tmux/plugins/" ~/.config/tmux/plugins/tpm/bin/install_plugins
+
 # --- Ghostty config ---
 log "Setting up Ghostty config..."
 mkdir -p ~/.config/ghostty
