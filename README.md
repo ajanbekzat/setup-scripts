@@ -53,6 +53,21 @@ After cloning the tmux config, both scripts install [TPM](https://github.com/tmu
 plugins (resurrect, continuum, pain-control) into `~/.config/tmux/plugins/`, so tmux session
 save/restore (`prefix + Ctrl-s` / `prefix + Ctrl-r`, plus auto-restore on reboot) works out of the box.
 
+## Claude Code Config
+
+Both scripts also clone my global [Claude Code](https://claude.com/claude-code) setup from the private
+[ajanbekzat/claude-config](https://github.com/ajanbekzat/claude-config) repo into `~/.claude-config`, then run
+its `install.sh` to place skills, `CLAUDE.md` (i-have-adhd output style + about-me), `settings.json`, and the
+custom statusline into `~/.claude/`. The installer is **idempotent and non-destructive** — existing files are kept.
+
+Set up **just the skills that are missing** (standalone, run anytime):
+
+```bash
+bash ~/.claude-config/install.sh --skills-only
+```
+
+Note: `claude-config` is private, so the clone uses SSH — add an SSH key to GitHub first.
+
 ## Shell Aliases
 
 Both scripts set up these aliases:

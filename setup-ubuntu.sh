@@ -149,6 +149,17 @@ TMUX_PLUGIN_MANAGER_PATH="$HOME/.config/tmux/plugins/" \
     ~/.config/tmux/plugins/tpm/bin/install_plugins \
     || warn "tmux plugin install failed; inside tmux press prefix + I to retry"
 
+# --- Claude Code global config (skills + CLAUDE.md + settings) ---
+# Private repo; needs an SSH key on GitHub. install.sh is idempotent + non-destructive.
+log "Setting up Claude Code config..."
+if [ -d ~/.claude-config ]; then
+    warn "~/.claude-config already exists, pulling latest"
+    git -C ~/.claude-config pull --ff-only || warn "claude-config pull failed; skipping update"
+else
+    git clone git@github.com:ajanbekzat/claude-config.git ~/.claude-config
+fi
+bash ~/.claude-config/install.sh
+
 # --- Bashrc aliases ---
 log "Setting up bash aliases..."
 if ! grep -q 'alias lg=' ~/.bashrc 2>/dev/null; then

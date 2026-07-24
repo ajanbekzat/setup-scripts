@@ -126,6 +126,17 @@ else
     warn "Ghostty config already exists, skipping"
 end
 
+# --- Claude Code global config (skills + CLAUDE.md + settings) ---
+# Private repo; needs an SSH key on GitHub. install.sh is idempotent + non-destructive.
+log "Setting up Claude Code config..."
+if test -d ~/.claude-config
+    warn "~/.claude-config already exists, pulling latest"
+    git -C ~/.claude-config pull --ff-only; or warn "claude-config pull failed; skipping update"
+else
+    git clone git@github.com:ajanbekzat/claude-config.git ~/.claude-config
+end
+bash ~/.claude-config/install.sh
+
 # --- Fish aliases & config ---
 log "Setting up fish aliases..."
 set -l fish_config ~/.config/fish/config.fish
